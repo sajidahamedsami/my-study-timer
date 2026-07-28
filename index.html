@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notion Multi-Timer Tracker</title>
+  <title>Notion Minimal Rain & Cloud Tracker</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,33 +25,98 @@
       font-family: 'Outfit', sans-serif;
     }
 
+    /* Transparent Main Container */
     .tracker-card {
-      background: transparent;
-      padding: 16px;
+      position: relative;
+      background: transparent !important;
+      padding: 24px 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       user-select: none;
+      border-radius: 20px;
+      overflow: hidden;
     }
 
+    /* Weather Animation Layer (Clouds & Rain) */
+    .weather-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      z-index: 0;
+    }
+
+    .tracker-card.running .weather-layer {
+      opacity: 1;
+    }
+
+    /* ☁️ Minimal SVG Clouds Floating */
+    .cloud {
+      position: absolute;
+      color: rgba(15, 23, 42, 0.22); /* Dark Minimal Cloud Stroke */
+      animation: floatCloud linear infinite;
+    }
+
+    .cloud svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8; /* Clean thin stroke */
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .cloud-1 { top: 8%; left: -30%; width: 55px; height: 35px; animation-duration: 9s; }
+    .cloud-2 { top: 18%; left: -40%; width: 42px; height: 28px; animation-duration: 12s; animation-delay: 3s; }
+
+    @keyframes floatCloud {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(380px); }
+    }
+
+    /* 🌧️ Thin Stroke Rain Drops Falling */
+    .rain-drop {
+      position: absolute;
+      width: 1.5px; /* Thin line stroke */
+      height: 14px;
+      background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.35));
+      border-radius: 1px;
+      animation: fallRain linear infinite;
+    }
+
+    .drop-1 { left: 20%; top: -20px; animation-duration: 0.8s; animation-delay: 0.1s; }
+    .drop-2 { left: 40%; top: -20px; animation-duration: 1.1s; animation-delay: 0.5s; }
+    .drop-3 { left: 60%; top: -20px; animation-duration: 0.9s; animation-delay: 0.3s; }
+    .drop-4 { left: 80%; top: -20px; animation-duration: 1.2s; animation-delay: 0.7s; }
+
+    @keyframes fallRain {
+      0% { transform: translateY(0) scaleY(1); opacity: 0; }
+      30% { opacity: 0.7; }
+      80% { opacity: 0.7; }
+      100% { transform: translateY(160px) scaleY(1.2); opacity: 0; }
+    }
+
+    /* Card Content Stacked on Top */
+    .card-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Subject Title - Solid Dark Black */
     .subject-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 1px;
-      color: #38bdf8;
-      margin-bottom: 4px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #0f172a;
+      margin-bottom: 14px;
       text-transform: uppercase;
-      text-align: center;
-    }
-
-    .motivation-text {
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: #94a3b8;
-      margin-bottom: 12px;
       text-align: center;
     }
 
@@ -59,48 +124,55 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
-      position: relative;
+      margin-bottom: 18px;
     }
 
+    /* Status Light Dot (Self-contained Pulsing Dot) */
     .pulse-ring {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background-color: #10b981;
-      opacity: 0.3;
-      transition: all 0.4s ease;
+      background-color: #ef4444; /* Red when OFF */
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+      transition: background-color 0.4s ease, box-shadow 0.4s ease;
+      animation: redBlink 2.2s infinite ease-in-out;
+    }
+
+    @keyframes redBlink {
+      0%, 100% { opacity: 0.35; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
     }
 
     .pulse-ring.running {
-      opacity: 1;
-      box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
-      animation: neonAura 2s infinite ease-in-out;
+      background-color: #10b981; /* Green when ON */
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+      animation: greenBlink 1.6s infinite ease-in-out;
     }
 
-    @keyframes neonAura {
-      0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1.15); box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    @keyframes greenBlink {
+      0%, 100% { opacity: 0.4; transform: scale(0.92); box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+      50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 12px rgba(16, 185, 129, 0.9); }
     }
 
+    /* Timer Numbers - Crisp Black */
     .time-display {
       font-family: 'Space Grotesk', monospace;
-      font-size: 3rem;
+      font-size: 3.2rem;
       font-weight: 700;
       letter-spacing: -1px;
       line-height: 1;
-      color: #64748b;
+      color: #0f172a;
       font-variant-numeric: tabular-nums;
     }
 
+    /* Minimalist Button for Light Mode */
     .control-btn {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      border: none;
-      background-color: rgba(148, 163, 184, 0.15);
-      color: #94a3b8;
+      border: 1px solid rgba(15, 23, 42, 0.15);
+      background-color: rgba(15, 23, 42, 0.04);
+      color: #0f172a;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -110,9 +182,9 @@
     }
 
     .control-btn:hover {
-      background-color: rgba(148, 163, 184, 0.25);
-      color: #cbd5e1;
+      background-color: rgba(15, 23, 42, 0.1);
       transform: scale(1.08);
+      border-color: rgba(15, 23, 42, 0.3);
     }
 
     .control-btn:active { transform: scale(0.92); }
@@ -122,54 +194,60 @@
       height: 16px;
       fill: currentColor;
     }
-
-    .sync-status {
-      font-size: 0.7rem;
-      color: #64748b;
-      margin-top: 8px;
-    }
   </style>
 </head>
 <body>
 
-  <div class="tracker-card">
-    <div class="subject-title" id="subject-tag">GENERAL WORK</div>
-    <div class="motivation-text">Stay Focused</div>
+  <div class="tracker-card" id="main-card">
+    
+    <!-- Weather Layer: Clouds & Raindrops -->
+    <div class="weather-layer">
+      <!-- Clouds -->
+      <div class="cloud cloud-1">
+        <svg viewBox="0 0 24 24"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.156 20.206 10.231 17.922 10.024C17.399 6.588 14.42 4 10.833 4C6.949 4 3.738 6.949 3.402 10.74C1.488 11.455 0.1 13.28 0.1 15.417C0.1 18.224 2.376 20.5 5.183 20.5H17.5V19Z"/></svg>
+      </div>
+      <div class="cloud cloud-2">
+        <svg viewBox="0 0 24 24"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.156 20.206 10.231 17.922 10.024C17.399 6.588 14.42 4 10.833 4C6.949 4 3.738 6.949 3.402 10.74C1.488 11.455 0.1 13.28 0.1 15.417C0.1 18.224 2.376 20.5 5.183 20.5H17.5V19Z"/></svg>
+      </div>
 
-    <div class="time-container">
-      <div class="pulse-ring" id="indicator"></div>
-      <div class="time-display" id="display">00:00:00</div>
+      <!-- Raindrops -->
+      <div class="rain-drop drop-1"></div>
+      <div class="rain-drop drop-2"></div>
+      <div class="rain-drop drop-3"></div>
+      <div class="rain-drop drop-4"></div>
     </div>
 
-    <button class="control-btn" id="btn-toggle" aria-label="Start or Pause">
-      <svg class="btn-icon" id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      <svg class="btn-icon" id="icon-pause" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-    </button>
+    <!-- Main Card Content -->
+    <div class="card-content">
+      <div class="subject-title" id="subject-tag">GENERAL WORK</div>
 
-    <div class="sync-status" id="sync-status">Cloud Sync Ready</div>
+      <div class="time-container">
+        <div class="pulse-ring" id="indicator"></div>
+        <div class="time-display" id="display">00:00:00</div>
+      </div>
+
+      <button class="control-btn" id="btn-toggle" aria-label="Start or Pause">
+        <svg class="btn-icon" id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="btn-icon" id="icon-pause" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Detect Subject/Project from URL (e.g., ?sub=futureplan)
     const urlParams = new URLSearchParams(window.location.search);
     const subjectId = (urlParams.get('sub') || 'general').toLowerCase();
 
-    // Map subject & project IDs to readable titles
     const subjectNames = {
-      // Subjects
       'bsns111': 'BSNS 111: Business & Society',
       'bsns113': 'BSNS 113: Economics',
       'bsns114': 'BSNS 114: Finance',
       'comp121': 'COMP 121: Programming',
-      
-      // Projects & Plans
       'futureplan': 'Future Plan',
       'falahagro': 'Falah Agro Farm',
       'choloabroad': 'Cholo Abroad',
-      
       'general': 'GENERAL WORK'
     };
 
@@ -192,7 +270,7 @@
     const playIcon = document.getElementById('icon-play');
     const pauseIcon = document.getElementById('icon-pause');
     const indicatorEl = document.getElementById('indicator');
-    const syncStatusEl = document.getElementById('sync-status');
+    const mainCardEl = document.getElementById('main-card');
 
     function formatTime(ms) {
       const totalSeconds = Math.floor(ms / 1000);
@@ -211,7 +289,6 @@
       if (!isRunning && snapshot.exists()) {
         elapsedTime = snapshot.val();
         updateDisplay();
-        syncStatusEl.textContent = "Synced from Cloud";
       }
     });
 
@@ -234,8 +311,9 @@
 
       playIcon.style.display = 'none';
       pauseIcon.style.display = 'block';
+      
       indicatorEl.classList.add('running');
-      syncStatusEl.textContent = "Tracking Live...";
+      mainCardEl.classList.add('running');
     }
 
     function stopTimer() {
@@ -247,8 +325,9 @@
 
       playIcon.style.display = 'block';
       pauseIcon.style.display = 'none';
+      
       indicatorEl.classList.remove('running');
-      syncStatusEl.textContent = "Saved to Cloud";
+      mainCardEl.classList.remove('running');
     }
 
     toggleBtn.addEventListener('click', () => {
